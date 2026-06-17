@@ -65,6 +65,10 @@ jobs:
         if: ${{ inputs.frontend }}
         run: pnpm install
 
+      - name: Build frontend
+        if: ${{ inputs.frontend }}
+        run: pnpm build  # produces frontendDist so cargo can embed it via generate_context!
+
       - name: Format
         if: ${{ inputs.fmt }}
         run: cargo fmt --all -- --check
