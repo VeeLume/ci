@@ -12,6 +12,10 @@ on:
       toolchain:
         type: string
         default: stable
+      fmt:
+        description: "Run cargo fmt --check."
+        type: boolean
+        default: true
       frontend:
         description: "Tauri/JS repos: run pnpm install + pnpm check."
         type: boolean
@@ -30,7 +34,7 @@ permissions:
 jobs:
   check:
     runs-on: ${{ inputs.os }}
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -62,6 +66,7 @@ jobs:
         run: pnpm install
 
       - name: Format
+        if: ${{ inputs.fmt }}
         run: cargo fmt --all -- --check
 
       - name: Clippy
