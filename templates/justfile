@@ -1,0 +1,17 @@
+# justfile — common dev commands. `just --list` to see them. Install: cargo install just
+default:
+    @just --list
+
+test:
+    cargo test --workspace
+
+fmt:
+    cargo fmt --all
+
+clippy:
+    cargo clippy --workspace --all-targets -- -D warnings
+
+# What CI runs (fmt check + clippy).
+check:
+    cargo fmt --all -- --check
+    cargo clippy --workspace --all-targets -- -D warnings

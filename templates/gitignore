@@ -1,0 +1,19 @@
+# Copy to .gitignore — ideally BEFORE the first commit.
+
+# Build artifacts
+/target
+**/target
+node_modules/
+dist/
+build/
+.svelte-kit/
+
+# Secrets — never commit (the 2026-06-15 audit found plaintext keys at repo roots)
+*.key
+*.pem
+*.pfx
+.env
+.env.*
+*service-account*.json
+serviceAccountKey.json
+appwrite_key

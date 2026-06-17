@@ -1,0 +1,24 @@
+# justfile — Tauri app dev commands. `just --list` to see them. Install: cargo install just
+default:
+    @just --list
+
+dev:
+    pnpm tauri dev
+
+build:
+    pnpm tauri build
+
+test:
+    cargo test --workspace
+
+fmt:
+    cargo fmt --all
+
+clippy:
+    cargo clippy --workspace --all-targets -- -D warnings
+
+# What CI runs (fmt check + clippy + frontend typecheck).
+check:
+    cargo fmt --all -- --check
+    cargo clippy --workspace --all-targets -- -D warnings
+    pnpm check

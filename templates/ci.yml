@@ -1,0 +1,14 @@
+# Copy to .github/workflows/ci.yml in a repo. Pure-Rust repos need no inputs.
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  ci:
+    uses: VeeLume/ci/.github/workflows/rust-ci.yml@main
+    # Options (uncomment a `with:` block as needed):
+    # with:
+    #   frontend: true        # Tauri/JS repos: also run pnpm install + pnpm check
+    #   os: ubuntu-latest     # cross-platform libs
+    #   audit: true           # run cargo-audit

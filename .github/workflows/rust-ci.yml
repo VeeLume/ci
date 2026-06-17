@@ -1,0 +1,82 @@
+# VeeLume/ci — reusable push/PR CI for Rust repos.
+# Mirrors `just check` + `just test`: fmt -> clippy -> (optional) frontend check -> tests.
+# Consume it with a small caller (see templates/ci.yml).
+name: rust-ci
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        type: string
+        default: windows-latest
+      toolchain:
+        type: string
+        default: stable
+      frontend:
+        description: "Tauri/JS repos: run pnpm install + pnpm check."
+        type: boolean
+        default: false
+      clippy:
+        type: boolean
+        default: true
+      audit:
+        description: "Run cargo-audit."
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ${{ inputs.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ inputs.toolchain }}
+          components: rustfmt, clippy
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> target"
+
+      - name: Setup pnpm
+        if: ${{ inputs.frontend }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Setup Node
+        if: ${{ inputs.frontend }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: pnpm
+
+      - name: Install frontend deps
+        if: ${{ inputs.frontend }}
+        run: pnpm install
+
+      - name: Format
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        if: ${{ inputs.clippy }}
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Frontend check
+        if: ${{ inputs.frontend }}
+        run: pnpm check
+
+      - name: Test
+        run: cargo test --workspace
+
+      - name: Audit
+        if: ${{ inputs.audit }}
+        uses: rustsec/audit-check@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
