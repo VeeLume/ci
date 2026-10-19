@@ -24,6 +24,7 @@ jobs:
 | `os` | `ubuntu-latest` | runner; `windows-latest` only if tests must run on Windows |
 | `toolchain` | `stable` | Rust toolchain |
 | `frontend` | `false` | `true` for Tauri/JS repos → adds `pnpm install` + `pnpm check` |
+| `frontend-dir` | `.` | where `package.json` lives, e.g. `stibu` when the app sits in a subfolder (cargo still runs from the root workspace) |
 | `clippy` | `true` | run `clippy -D warnings` |
 | `windows-clippy` | `false` | `true` for repos with `cfg(windows)` code → parallel clippy-only job on `windows-latest` |
 | `audit` | `false` | run `cargo-audit` |

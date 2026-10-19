@@ -20,6 +20,10 @@ on:
         description: "Tauri/JS repos: run pnpm install + pnpm check."
         type: boolean
         default: false
+      frontend-dir:
+        description: "Directory holding package.json when the frontend isn't at the repo root."
+        type: string
+        default: "."
       clippy:
         type: boolean
         default: true
@@ -73,6 +77,7 @@ jobs:
         with:
           version: 10
           run_install: false
+          package_json_file: ${{ inputs.frontend-dir }}/package.json
 
       - name: Setup Node
         if: ${{ inputs.frontend }}
@@ -80,13 +85,16 @@ jobs:
         with:
           node-version: "lts/*"
           cache: pnpm
+          cache-dependency-path: ${{ inputs.frontend-dir }}/pnpm-lock.yaml
 
       - name: Install frontend deps
         if: ${{ inputs.frontend }}
+        working-directory: ${{ inputs.frontend-dir }}
         run: pnpm install
 
       - name: Build frontend
         if: ${{ inputs.frontend }}
+        working-directory: ${{ inputs.frontend-dir }}
         run: pnpm build  # produces frontendDist so cargo can embed it via generate_context!
 
       - name: Format
@@ -99,6 +107,7 @@ jobs:
 
       - name: Frontend check
         if: ${{ inputs.frontend && matrix.lane == 'full' }}
+        working-directory: ${{ inputs.frontend-dir }}
         run: pnpm check
 
       - name: Test
