@@ -10,5 +10,5 @@ jobs:
     # Options (uncomment a `with:` block as needed):
     # with:
     #   frontend: true        # Tauri/JS repos: also run pnpm install + pnpm check
-    #   os: ubuntu-latest     # cross-platform libs
+    #   windows-clippy: true  # repo has cfg(windows) code: also lint it on Windows
     #   audit: true           # run cargo-audit

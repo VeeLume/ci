@@ -21,11 +21,15 @@ jobs:
 
 | Input | Default | Use |
 |---|---|---|
-| `os` | `windows-latest` | runner; e.g. `ubuntu-latest` for cross-platform libs |
+| `os` | `ubuntu-latest` | runner; `windows-latest` only if tests must run on Windows |
 | `toolchain` | `stable` | Rust toolchain |
 | `frontend` | `false` | `true` for Tauri/JS repos → adds `pnpm install` + `pnpm check` |
+| `frontend-dir` | `.` | where `package.json` lives, e.g. `stibu` when the app sits in a subfolder (cargo still runs from the root workspace) |
 | `clippy` | `true` | run `clippy -D warnings` |
+| `windows-clippy` | `false` | `true` for repos with `cfg(windows)` code → parallel clippy-only job on `windows-latest` |
 | `audit` | `false` | run `cargo-audit` |
+
+Checks run on Linux because it is faster; release builds (Windows installers, Android) live in each repo's own publish workflow. On Linux, Tauri's system libraries are installed automatically when a `tauri.conf.json` is present. The Rust cache is saved only from the default branch; PRs restore it.
 
 ## templates/
 
