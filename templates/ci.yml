@@ -11,4 +11,5 @@ jobs:
     # with:
     #   frontend: true        # Tauri/JS repos: also run pnpm install + pnpm check
     #   windows-clippy: true  # repo has cfg(windows) code: also lint it on Windows
+    #   windows-test: -p my-crate  # Windows-only tests (ignored on Linux) run on Windows
     #   audit: true           # run cargo-audit

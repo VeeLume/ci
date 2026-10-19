@@ -31,6 +31,10 @@ on:
         description: "Also run clippy on windows-latest in parallel, so cfg(windows) code is linted."
         type: boolean
         default: false
+      windows-test:
+        description: "cargo test args to also run on windows-latest in parallel, e.g. `-p sc-discovery` for Windows-only tests."
+        type: string
+        default: ""
       audit:
         description: "Run cargo-audit."
         type: boolean
@@ -41,12 +45,12 @@ permissions:
 
 jobs:
   check:
-    # The `full` lane keeps the job name `check`; the optional lane only builds the frontend and runs clippy.
-    name: ${{ matrix.lane == 'full' && 'check' || 'clippy (windows)' }}
+    # The `full` lane keeps the job name `check`; the optional windows lane only runs windows-clippy and/or windows-test.
+    name: ${{ matrix.lane == 'full' && 'check' || (inputs.windows-test != '' && 'windows' || 'clippy (windows)') }}
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJSON(format('[{{"os":"{0}","lane":"full"}}{1}]', inputs.os, inputs.windows-clippy && ',{"os":"windows-latest","lane":"windows-clippy"}' || '')) }}
+        include: ${{ fromJSON(format('[{{"os":"{0}","lane":"full"}}{1}]', inputs.os, (inputs.windows-clippy || inputs.windows-test != '') && ',{"os":"windows-latest","lane":"windows"}' || '')) }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     steps:
@@ -102,7 +106,7 @@ jobs:
         run: cargo fmt --all -- --check
 
       - name: Clippy
-        if: ${{ inputs.clippy || matrix.lane == 'windows-clippy' }}
+        if: ${{ (matrix.lane == 'full' && inputs.clippy) || (matrix.lane == 'windows' && inputs.windows-clippy) }}
         run: cargo clippy --workspace --all-targets -- -D warnings
 
       - name: Frontend check
@@ -113,6 +117,13 @@ jobs:
       - name: Test
         if: ${{ matrix.lane == 'full' }}
         run: cargo test --workspace
+
+      - name: Test (windows)
+        if: ${{ matrix.lane == 'windows' && inputs.windows-test != '' }}
+        shell: bash
+        env:
+          WINDOWS_TEST_ARGS: ${{ inputs.windows-test }}
+        run: cargo test $WINDOWS_TEST_ARGS  # unquoted on purpose: split into separate args
 
       - name: Audit
         if: ${{ inputs.audit && matrix.lane == 'full' }}
